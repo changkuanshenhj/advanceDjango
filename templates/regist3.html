@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Regist3</title>
+</head>
+<body>
+    <p>
+    <form method="post">
+        <input name="name" placeholder="username">
+        <br>
+        <input name="phone" placeholder="phone">
+        <br>
+        <button>提交</button>
+    </form>
+    </p>
+    <p>
+        <button onclick="up_ajax()">ajax发起put请求</button>
+        <script>
+            function up_ajax() {
+                data = {
+                    name: document.forms[0].name.value,
+                    phone: document.forms[0].phone.value,
+                };
+                {#FormData的主要用途有两个：#}
+                {#1、将form表单元素的name与value进行组合，实现表单数据的序列化，从而减少表单元素的拼接，提高工作效率。#}
+                {#2、异步上传文件#}
+                let formdata = new FormData();
+                formdata.append('name', data.name);
+                formdata.append('phone', data.phone);
+
+                fetch('', {
+                    method: 'PUT',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Content-Type': 'application/json;charset=utf-8'
+                    }
+                }).then(response=> response.text())
+                    .then(html=> {document.write(html)
+                    })
+            }
+        </script>
+    </p>
+    <p>
+        POST请求参数:
+        <ul>
+            {% for key, value in request.POST.items %}
+                <li>{{ key }}:{{ value }}</li>
+            {% endfor %}
+
+        </ul>
+    </p>
+    <p>
+        PUT的参数（body）:{{ request.body }}
+        <br>
+        Content-Type:{{ request.content_type }};{{ request.encoding }}
+    </p>
+</body>
+</html>

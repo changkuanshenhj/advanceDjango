@@ -5,6 +5,6 @@ from user import views
 app_name = 'user'
 
 urlpatterns = [
-    path('regist/', views.regist, name='regist1'),
-    path('regist/<user_id>', views.regist, name='regist2'),
+    path('regist/', views.regist, name='regist'),
+    path('regist/<user_id>', views.regist_2, name='regist2'),
 ]
