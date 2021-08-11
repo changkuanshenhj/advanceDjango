@@ -1,5 +1,7 @@
+from datetime import datetime, timedelta
 import json
 import os
+import uuid
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse, HttpRequest, JsonResponse
@@ -65,8 +67,8 @@ def regist4(request, user_id=None):
 
 def regist(request):
     resp1 = HttpResponse(content='您好'.encode('utf-8'),
-                        status=200,
-                        content_type='text/html;charset=utf-8')
+                         status=200,
+                         content_type='text/html;charset=utf-8')
 
     with open('images/常坤.jpg', 'rb') as f:
         bytes = f.read()
@@ -83,3 +85,74 @@ def regist(request):
     # resp4 和resp3一样的目的，不过是django内部已经做好了序列化
     resp4 = JsonResponse(data)
     return resp4
+
+
+def add_cookie(request):
+    # 生成token，并存储到Cookie中
+    token = uuid.uuid4().hex
+    resp = HttpResponse('增加Cookie：token成功')
+
+    resp.set_cookie('token', token,
+                    expires=datetime.now()+timedelta(days=2))  # 两分钟后失效
+    return resp
+
+
+def del_cookie(request):
+    resp = HttpResponse('删除Cookie: token成功')
+
+    # 删除单个cookie
+    # resp.delete_cookie('token')
+
+    # 删除所有的cookie
+    # 先从请求对象中获取所有的Cookie信息，然后再删除
+    for k in request.COOKIES:
+        resp.delete_cookie(k)
+
+    return resp
+
+
+def login(request):
+    phone = request.GET.get('phone')
+    code = request.GET.get('code')
+
+    if all((
+        phone == request.session.get('phone'),
+        code == request.session.get('code')
+    )):
+        resp = HttpResponse('登录成功')
+        token = uuid.uuid4().hex  # 保存到缓存
+        resp.set_cookie('token', token)
+
+        return resp
+    return HttpResponse('登录失败，请确认phone和code!')
+
+
+def logout(request):
+    # 删除所有session中的信息和cookie信息
+    request.session.clear()  # 删除所有session中信息
+    # request.session.flush()
+    resp = HttpResponse('注销成功')
+    resp.delete_cookie('token')
+    return resp
+
+
+def list(request):
+    # 验证是否登录
+    if request.COOKIES.get('token'):
+        return HttpResponse('正在跳转到主页')
+    return HttpResponse('请先登录')
+
+
+def new_code(request):
+    # 生成手机验证码
+    # 随机尝试验证码：大小写字母+数字
+    code_text = 'Xab9'
+
+    # 保存到session中
+    phone = request.GET.get('phone')
+    request.session['code'] = code_text
+    request.session['phone'] = phone
+
+    # 向手机发送验证码
+
+    return HttpResponse('已向%s手机发送了验证码' % phone)
