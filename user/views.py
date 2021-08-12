@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 import json
 import os
@@ -6,6 +7,10 @@ import uuid
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
+
+from PIL import Image, ImageDraw, ImageFont
+
+from common.code import new_code_str
 
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
@@ -156,3 +161,38 @@ def new_code(request):
     # 向手机发送验证码
 
     return HttpResponse('已向%s手机发送了验证码' % phone)
+
+
+def new_img_code(request):
+
+    # 创建画布
+    img = Image.new('RGB', (120, 40), (100, 100, 0))
+
+    # 从画布中获取画笔
+    draw = ImageDraw.Draw(img, 'RGB')
+
+    # 创建字体对象和字体颜色
+    font_color = (0, 20, 100)
+    font = ImageFont.truetype(font='static/fonts/buding.ttf', size=30)
+
+    valid_code = new_code_str(6)
+    request.session['code'] = valid_code
+    # 开始画内容
+    draw.text((5, 5), valid_code, font=font, fill=font_color)
+    # draw.line((0, 0), (255, 0, 0), 20)
+
+    for _ in range(500):
+        x = random.randint(0, 120)
+        y = random.randint(0, 40)
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        draw.point((x, y), (r, g, b))
+
+    # 将画布写入内存字节数组中
+    from io import BytesIO
+    buffer = BytesIO()
+    img.save(buffer, 'png')  # 写入
+    del draw  # 删除画笔
+    return HttpResponse(content=buffer.getvalue(),
+                        content_type='image/png')
