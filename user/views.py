@@ -5,6 +5,8 @@ import os
 import uuid
 
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
 
@@ -14,6 +16,8 @@ from common.code import new_code_str
 
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
+
+from user.models import Order
 
 
 @csrf_exempt
@@ -196,3 +200,14 @@ def new_img_code(request):
     del draw  # 删除画笔
     return HttpResponse(content=buffer.getvalue(),
                         content_type='image/png')
+
+
+def order_list(request):
+    wd = request.GET.get('wd', '')
+    page = request.GET.get('page', 1)
+    orders = Order.objects.filter(Q(title__icontains=wd)).all()
+
+    # 分页器Paginator（每页五条记录）
+    paginator = Paginator(orders, 5)
+    pager = paginator.page(page)  # 查询第page页
+    return render(request, 'list.html', locals())
