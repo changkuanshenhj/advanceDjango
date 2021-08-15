@@ -16,8 +16,9 @@ class StockView(View):
 
     # def get(self, request, stock_id):
     def get(self, request: HttpRequest, **kwargs):
-        # age是查询参数，stock_id是位置参数
+        # age是查询参数，stock_id是位置参数/关键字参数
         # print(request.GET.get('age', 0))
+        page = kwargs.get('page', 5)
         stock_id = kwargs.get('stock_id')
         return render(request, 'stock/list.html', locals())
 
@@ -49,12 +50,23 @@ def goods_post(request):
 """
 
 
+class ContextError(Exception):
+    pass
+
+
+class LoginError(Exception):
+    pass
+
+
 class GoodsView(TemplateView):
     # 针对get请求
     template_name = 'goods/list.html'
     extra_context = {'msg': '我是扩展的变量'}
 
     def get_context_data(self, **kwargs):
+        # raise Exception('故意抛出的异常')
+        # raise ContextError('故意抛出的异常')
+
         # 渲染模板之前，提供上下文数据
         context = super().get_context_data(**kwargs)
         wd = context.get('wd', '')
@@ -72,4 +84,5 @@ class QueryView(RedirectView):
     query_string = True  # 确定是否拼接查询参数
 
     def get_redirect_url(self, *args, **kwargs):
+        # raise LoginError('查询异常')
         return super(QueryView, self).get_redirect_url(*args, **kwargs)

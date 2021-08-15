@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'middleware.check_login.CheckLoginMiddleware',  # 自己的写的中间件
 ]
 
 ROOT_URLCONF = 'advanceDjango.urls'
@@ -130,3 +131,52 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# 配置Django的日志
+LOGGING = {
+    'version': 1.0,
+    'formatters': {
+        'base': {
+            'format': '[%(asctime)s  %(name)s ] %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S  xck'
+        }
+    },
+    'handlers': {
+        'out': {
+            'class': 'logging.StreamHandler',
+            'level': 'INFO',
+            'formatter': 'base'
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'level': 'WARNING',
+            'formatter': 'base',
+            'filename': f'{BASE_DIR}/warn.log',
+        }
+    },
+    'loggers': {
+        'django.server': {
+            'handlers': ['out', 'file'],
+            'level': 'CRITICAL',
+            'propagate': False
+        },
+        'mylogger': {
+            'handlers': ['out', 'file'],
+            'level': 'INFO',
+            'propagate': False
+        },
+    }
+}
+
+# 配置文件缓存Cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': f'{BASE_DIR}/mycache',
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'MAX_ENTRIES': 500,
+            'CULL_FREQUENCY': 3
+        }
+    }
+}

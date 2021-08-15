@@ -9,9 +9,11 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
+from django.core.cache import cache
 
 from PIL import Image, ImageDraw, ImageFont
 
+from common import code
 from common.code import new_code_str
 
 # Create your views here.
@@ -124,13 +126,19 @@ def login(request):
     phone = request.GET.get('phone')
     code = request.GET.get('code')
 
-    if all((
-        phone == request.session.get('phone'),
-        code == request.session.get('code')
-    )):
+    # if all((
+    #     phone == request.session.get('phone'),
+    #     code == request.session.get('code')
+    # )):
+    # 判断缓存中是否存在phone
+    # 存在即去读取
+    if all((cache.has_key(phone), cache.get(phone)==code)):
         resp = HttpResponse('登录成功')
         token = uuid.uuid4().hex  # 保存到缓存
         resp.set_cookie('token', token)
+
+        # 删除缓存
+        cache.delete(phone)
 
         return resp
     return HttpResponse('登录失败，请确认phone和code!')
@@ -155,12 +163,18 @@ def list(request):
 def new_code(request):
     # 生成手机验证码
     # 随机尝试验证码：大小写字母+数字
-    code_text = 'Xab9'
+    # code_text = 'Xab9'
+    code_text = code.new_code_str(4)
+    print(code_text)
 
     # 保存到session中
     phone = request.GET.get('phone')
     request.session['code'] = code_text
     request.session['phone'] = phone
+
+    # 将验证码存到cache
+    # timeout是缓存的时间
+    cache.set(phone, code_text, timeout=60)
 
     # 向手机发送验证码
 
