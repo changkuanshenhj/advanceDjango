@@ -18,7 +18,7 @@ class CheckLoginMiddleware(MiddlewareMixin):
         # 从请求到路由urls过程，触发此函数
         # print('----CheckLoginMiddleware----', 'process_request')
         # print(request.path, request.COOKIES)
-        donotfilters = ['/user/login/', '/user/code/']
+        donotfilters = ['/user/login/', '/user/code/', '/user/list/']
         if request.path not in donotfilters:
             # 验证用户是否登录
             if not request.COOKIES.get('token'):

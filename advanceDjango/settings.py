@@ -50,7 +50,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.check_login.CheckLoginMiddleware',  # 自己的写的中间件
+    'middleware.check_login.CheckLoginMiddleware',  # 自己的写的中间件1
+    'middleware.cache_page.CachePageMiddleware',  # 自己的写的中间件2
 ]
 
 ROOT_URLCONF = 'advanceDjango.urls'
@@ -178,5 +179,11 @@ CACHES = {
             'MAX_ENTRIES': 500,
             'CULL_FREQUENCY': 3
         }
-    }
+    },
+    # 内存的缓存一旦服务器重启，数据就没有了。
+    'html': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    },
 }
+# 为配置redis缓存做准备Redis(host='127.0.0.1', port=6379, db=3, decode_responses=True)

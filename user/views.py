@@ -1,4 +1,5 @@
 import random
+import string
 from datetime import datetime, timedelta
 import json
 import os
@@ -12,6 +13,7 @@ from django.shortcuts import render
 from django.core.cache import cache
 
 from PIL import Image, ImageDraw, ImageFont
+from django.views.decorators.cache import cache_page
 
 from common import code
 from common.code import new_code_str
@@ -153,11 +155,16 @@ def logout(request):
     return resp
 
 
+# # 页面缓存，十秒内，页面的资源不会改变
+# @cache_page(timeout=10, cache='html', key_prefix='page')
 def list(request):
     # 验证是否登录
-    if request.COOKIES.get('token'):
-        return HttpResponse('正在跳转到主页')
-    return HttpResponse('请先登录')
+    chrs = string.ascii_letters
+    char = random.choice(chrs)
+    # if request.COOKIES.get('token'):
+    #     return HttpResponse('正在跳转到主页')
+    # return HttpResponse('请先登录')
+    return HttpResponse('用户列表页面:<br> %s' % char)
 
 
 def new_code(request):
