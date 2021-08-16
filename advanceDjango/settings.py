@@ -169,9 +169,9 @@ LOGGING = {
     }
 }
 
-# 配置文件缓存Cache
+# 配置缓存Cache
 CACHES = {
-    'default': {
+    'file': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
         'LOCATION': f'{BASE_DIR}/mycache',
         'TIMEOUT': 300,
@@ -185,5 +185,20 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'unique-snowflake',
     },
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/10',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'SOCKET_CONNECT_TIMEOUT': 10,
+            'SOCKET_TIMEOUT': 10,
+        }
+    }
 }
-# 为配置redis缓存做准备Redis(host='127.0.0.1', port=6379, db=3, decode_responses=True)
+
+# 配置SESSION
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_COOKIE_NAME = 'SESSION_ID'
+SESSION_COOKIE_PATH = '/'
+SESSION_CACHE_ALIAS = 'default'  # session默认保存到default（redis）缓存中
+SESSION_COOKIE_AGE = 1209600   # 2周有效时间
