@@ -26,7 +26,7 @@ SECRET_KEY = 'onts_&tha3cek)k9v@*^8_=nn-ee23i72jp@a#xwy_@_sy7pv9'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user',
     'stockapp',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -202,3 +203,8 @@ SESSION_COOKIE_NAME = 'SESSION_ID'
 SESSION_COOKIE_PATH = '/'
 SESSION_CACHE_ALIAS = 'default'  # session默认保存到default（redis）缓存中
 SESSION_COOKIE_AGE = 1209600   # 2周有效时间
+
+# 配置Celery
+CELERY_IMPORTS = ('stockapp.tasks',)
+CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_CACHE_BACKEND = 'django-cache'  # 缓存信息

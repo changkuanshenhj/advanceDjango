@@ -1,3 +1,6 @@
+from __future__ import absolute_import, unicode_literals
+
+
 import pymysql
 from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
@@ -33,3 +36,9 @@ def delete_model_post(sender, **kwargs):
     print(sender, '删除成功', kwargs)
 
 
+# This will make sure the app is always imported when
+# Django starts so that shared_task will use this app.
+from .celery import app as celery_app
+
+# 向项目模块中增加celery_app对象
+__all__ = ('celery_app',)
