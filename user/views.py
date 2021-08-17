@@ -15,6 +15,7 @@ from django.core.cache import cache
 from PIL import Image, ImageDraw, ImageFont
 from django.views.decorators.cache import cache_page
 
+import signals
 from common import code
 from common.code import new_code_str
 
@@ -173,9 +174,17 @@ def new_code(request):
     # code_text = 'Xab9'
     code_text = code.new_code_str(4)
     print(code_text)
+    phone = request.GET.get('phone')
+
+    # 发送信号
+    # sender 名字可以根据需求设定
+    # 关键参数列表，根据信号定义的参数列表传值
+    signals.codeSignal.send('new_code',
+                            path=request.path,
+                            phone=phone,
+                            code=code_text)
 
     # 保存到session中
-    phone = request.GET.get('phone')
     request.session['code'] = code_text
     request.session['phone'] = phone
 
